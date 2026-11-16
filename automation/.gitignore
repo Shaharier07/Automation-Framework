@@ -1,0 +1,13 @@
+node_modules/
+.env
+api/target/
+reports/*
+!reports/.gitkeep
+!reports/allure-results/
+reports/allure-results/*/*
+!reports/allure-results/*/.gitkeep
+!reports/excel/
+reports/excel/*
+!reports/excel/.gitkeep
+screenshots/*
+!screenshots/.gitkeep

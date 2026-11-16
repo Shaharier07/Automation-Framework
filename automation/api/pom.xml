@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>automation</groupId>
+  <artifactId>api-automation</artifactId>
+  <version>1.0.0</version>
+  <name>API Automation (Karate DSL)</name>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <karate.version>1.5.2</karate.version>
+    <allure.version>2.35.6</allure.version><!-- 3.x requires Java 21 -->
+    <schema.validator.version>3.0.9</schema.validator.version>
+    <!-- overridable from CLI: -Dkarate.env=qa -Dkarate.tags=@smoke -Dkarate.threads=4 -->
+    <karate.env>dev</karate.env>
+    <karate.tags></karate.tags>
+    <karate.threads>1</karate.threads>
+    <tc.id.prefixes>TC</tc.id.prefixes>
+    <allure.results.dir>${project.basedir}/../reports/allure-results/api</allure.results.dir>
+    <karate.report.dir>../reports/karate</karate.report.dir>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.karatelabs</groupId>
+      <artifactId>karate-junit5</artifactId>
+      <version>${karate.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.qameta.allure</groupId>
+      <artifactId>allure-java-commons</artifactId>
+      <version>${allure.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.networknt</groupId>
+      <artifactId>json-schema-validator</artifactId>
+      <version>${schema.validator.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- Karate files are served from the classpath:
+           classpath:karate-config.js
+           classpath:common/...          (api/features/common)
+           classpath:api-tests/...       (../features/api  – your API scenarios)
+           classpath:test-data/...       (api/test-data)                       -->
+    <testResources>
+      <testResource>
+        <directory>${project.basedir}</directory>
+        <includes><include>karate-config.js</include></includes>
+      </testResource>
+      <testResource>
+        <directory>${project.basedir}/features</directory>
+      </testResource>
+      <testResource>
+        <directory>${project.basedir}/../features/api</directory>
+        <targetPath>api-tests</targetPath>
+      </testResource>
+      <testResource>
+        <directory>${project.basedir}/test-data</directory>
+        <targetPath>test-data</targetPath>
+      </testResource>
+      <!-- environment data (skill: test-data-management): test-data/api/<env>/ -> classpath:test-data/<env>/ -->
+      <testResource>
+        <directory>${project.basedir}/../test-data/api</directory>
+        <targetPath>test-data</targetPath>
+      </testResource>
+      <testResource>
+        <directory>${project.basedir}/src/test/resources</directory>
+      </testResource>
+    </testResources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.4</version>
+        <configuration>
+          <includes><include>framework/ApiTestRunner.java</include></includes>
+          <argLine>-Dfile.encoding=UTF-8</argLine>
+          <systemPropertyVariables>
+            <karate.env>${karate.env}</karate.env>
+            <karate.tags>${karate.tags}</karate.tags>
+            <karate.threads>${karate.threads}</karate.threads>
+            <tc.id.prefixes>${tc.id.prefixes}</tc.id.prefixes>
+            <allure.results.directory>${allure.results.dir}</allure.results.directory>
+            <karate.report.dir>${karate.report.dir}</karate.report.dir>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
